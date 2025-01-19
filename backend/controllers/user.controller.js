@@ -15,6 +15,9 @@ export const createUserController = async (req, res) => {
 
     const token = await user.generateJWT();
 
+    // for not console the password in the frontend
+    delete user._doc.password;
+
     res.status(201).json({ user, token });
   } catch (error) {
     console.log(error);
@@ -46,6 +49,9 @@ export const loginController = async (req, res) => {
     }
 
     const token = await user.generateJWT();
+
+    // for not console the password in the frontend
+    delete user._doc.password;
 
     res.status(200).json({ user, token });
   } catch (error) {
