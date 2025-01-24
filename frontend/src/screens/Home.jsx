@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { UserContext } from "../context/user.context.jsx";
 import axios from "../config/axios.js";
 
@@ -6,6 +6,7 @@ export const Home = () => {
   const { user } = useContext(UserContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [projectName, setProjectName] = useState(null);
+  const [project, setProject] = useState([]);
 
   function createProject(e) {
     e.preventDefault();
@@ -22,15 +23,46 @@ export const Home = () => {
         console.log(error);
       });
   }
+
+  useEffect(() => {
+    axios
+      .get("/projects/all")
+      .then((res) => {
+        // console.log(res.data.projects);
+
+        setProject(res.data.projects);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
+
   return (
     <main className=" p-4">
-      <div className="projects">
+      <div className="projects flex flex-wrap gap-3">
         <button
           onClick={() => setIsModalOpen(true)}
-          className="project p-4 border border-slate-500 rounded-md m-auto text-xl">
+          className="project p-4 border border-slate-500 min-w-52 hover:bg-slate-800 rounded-md m-auto text-xl">
           New Project
           <i className="ri-menu-add-line ml-3"></i>
         </button>
+
+        {project.map((prj) => (
+          <div
+            key={prj.id}
+            className="project flex flex-col gap-2 p-4 cursor-pointer border border-slate-500 rounded-md min-w-52 hover:bg-slate-800 m-auto text-xl">
+            <h2 className=" font-semibold">{prj.name}</h2>
+            <div className="flex gap-2">
+              <p>
+                <small>
+                  {" "}
+                  <i className="ri-user-line"></i> Collaborators :{" "}
+                </small>
+              </p>
+              {prj.users.length}
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Modal */}
