@@ -1,12 +1,14 @@
 import React, { useContext, useEffect, useState } from "react";
 import { UserContext } from "../context/user.context.jsx";
 import axios from "../config/axios.js";
+import { useNavigate } from "react-router-dom";
 
 export const Home = () => {
   const { user } = useContext(UserContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [projectName, setProjectName] = useState(null);
   const [project, setProject] = useState([]);
+  const navigate = useNavigate();
 
   function createProject(e) {
     e.preventDefault();
@@ -47,11 +49,16 @@ export const Home = () => {
           <i className="ri-menu-add-line ml-3"></i>
         </button>
 
-        {project.map((prj) => (
+        {project.map((project) => (
           <div
-            key={prj.id}
+            onClick={() => {
+              navigate(`/project/`, {
+                state: { project },
+              });
+            }}
+            key={project.id}
             className="project flex flex-col gap-2 p-4 cursor-pointer border border-slate-500 rounded-md min-w-52 hover:bg-slate-800 m-auto text-xl">
-            <h2 className=" font-semibold">{prj.name}</h2>
+            <h2 className=" font-semibold">{project.name}</h2>
             <div className="flex gap-2">
               <p>
                 <small>
@@ -59,7 +66,7 @@ export const Home = () => {
                   <i className="ri-user-line"></i> Collaborators :{" "}
                 </small>
               </p>
-              {prj.users.length}
+              {project.users.length}
             </div>
           </div>
         ))}
