@@ -64,7 +64,7 @@ export const addUsersToProject = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(400).json({ error: err.message });
+    res.status(400).json({ error: error.message });
   }
 };
 
