@@ -1,6 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "../config/axios.js";
+import { UserContext } from "../context/user.context.jsx";
+import {
+  initializeSocket,
+  receiveMessage,
+  sendMessage,
+} from "../config/socket.js";
 
 const Project = () => {
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
@@ -8,10 +14,12 @@ const Project = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState([]);
   const [users, setUsers] = useState([]);
+  const [message, setMessage] = useState("");
 
+  const { user } = useContext(UserContext);
   const location = useLocation();
-  const [project, setProject] = useState(location.state.project);
   // console.log(location.state);
+  const [project, setProject] = useState(location.state.project);
 
   const handleUserSelection = (userId) => {
     setSelectedUserId(
@@ -39,7 +47,24 @@ const Project = () => {
       });
   }
 
+  const send = () => {
+    console.log(user._id);
+
+    sendMessage("project-message", {
+      message,
+      sender: user._id,
+    });
+
+    setMessage("");
+  };
+
   useEffect(() => {
+    initializeSocket(project._id);
+
+    receiveMessage("project-message", (data) => {
+      console.log(data);
+    });
+
     axios
       .get(`/projects/get-project/${location.state.project._id}`)
       .then((res) => {
@@ -94,11 +119,13 @@ const Project = () => {
 
           <div className="inputField w-full flex">
             <input
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
               className="p-2 px-3 w-full border-none outline-none text-black"
               type="text"
               placeholder="Enter message"
             />
-            <button className="p-2 px-3 bg-slate-950 text-xl ">
+            <button onClick={send} className="p-2 px-3 bg-slate-950 text-xl ">
               <i className="ri-send-plane-fill"></i>
             </button>
           </div>
