@@ -12,23 +12,23 @@ const AppRoutes = () => {
         <Routes>
           <Route
             path="/"
-            element={
-              <UserAuth>
-                <Home />
-              </UserAuth>
-            }
-            // element={<Home />}
+            // element={
+            //   <UserAuth>
+            //     <Home />
+            //   </UserAuth>
+            // }
+            element={<Home />}
           />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route
             path="/project"
-            element={
-              <UserAuth>
-                <Project />
-              </UserAuth>
-            }
-            // element={<Project />}
+            // element={
+            //   <UserAuth>
+            //     <Project />
+            //   </UserAuth>
+            // }
+            element={<Project />}
           />
         </Routes>
       </BrowserRouter>

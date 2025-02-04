@@ -29,17 +29,31 @@ io.use(async (socket, next) => {
 
     socket.project = await projectModel.findById(projectId);
 
+    if (!socket.project) {
+      return next(new Error("Project not found"));
+    }
+
     if (!token) {
       return next(new Error("Authentication error"));
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    if (!decoded) {
-      return next(new Error("Authentication Error"));
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      if (!decoded) {
+        return next(new Error("Invalid token"));
+      }
+      socket.user = decoded;
+    } catch (error) {
+      return next(new Error("Authentication failed"));
     }
 
-    socket.user = decoded;
+    // const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // if (!decoded) {
+    //   return next(new Error("Authentication Error"));
+    // }
+
+    // socket.user = decoded;
     next();
   } catch (error) {
     next(error);
@@ -48,14 +62,15 @@ io.use(async (socket, next) => {
 
 io.on("connection", (socket) => {
   socket.roomId = socket.project._id.toString();
+  console.log("User connected to room:", socket.roomId);
 
-  console.log("a user connected");
+  // console.log("a user connected");
   socket.join(socket.roomId);
 
   socket.on("project-message", (data) => {
-    console.log(data);
+    console.log("Received message: ", data);
 
-    io.to(socket.roomId).emit("project-message", data);
+    socket.broadcast.to(socket.roomId).emit("project-message", data);
   });
 
   socket.on("event", (data) => {

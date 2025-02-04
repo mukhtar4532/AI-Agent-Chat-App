@@ -16,10 +16,12 @@ const UserAuth = ({ children }) => {
       return;
     }
 
+    if (!user) {
+      navigate("/login");
+    }
+
     if (user) {
       setLoading(false);
-    } else {
-      navigate("/login");
     }
   }, []);
 
