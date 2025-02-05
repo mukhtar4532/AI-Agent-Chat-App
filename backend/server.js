@@ -67,10 +67,27 @@ io.on("connection", (socket) => {
   // console.log("a user connected");
   socket.join(socket.roomId);
 
-  socket.on("project-message", (data) => {
-    console.log("Received message: ", data);
+  // socket.on("project-message", (data) => {
+  //   console.log("Received message: ", data);
 
-    socket.broadcast.to(socket.roomId).emit("project-message", data);
+  //   socket.broadcast.to(socket.roomId).emit("project-message", data);
+  // });
+
+  socket.on("project-message", (data) => {
+    if (!socket.user) {
+      console.error("Sender is null because socket.user is not set");
+      return;
+    }
+
+    const messageData = {
+      message: data.message,
+      sender: data.sender.email, // Attach sender ID
+    };
+
+    console.log("Sending message:", messageData);
+
+    // Broadcast message to all users except sender
+    socket.broadcast.to(socket.roomId).emit("project-message", messageData);
   });
 
   socket.on("event", (data) => {

@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "../config/axios.js";
 import { UserContext } from "../context/user.context.jsx";
@@ -15,6 +15,7 @@ const Project = () => {
   const [selectedUserId, setSelectedUserId] = useState([]);
   const [users, setUsers] = useState([]);
   const [message, setMessage] = useState("");
+  const messageBox = React.createRef();
 
   const { user } = useContext(UserContext);
   const location = useLocation();
@@ -48,12 +49,14 @@ const Project = () => {
   }
 
   const send = () => {
-    console.log(user._id);
+    // console.log(user);
 
     sendMessage("project-message", {
       message,
-      sender: user._id,
+      sender: user,
     });
+
+    appendOutgoingMessage(message);
 
     setMessage("");
   };
@@ -63,6 +66,7 @@ const Project = () => {
 
     receiveMessage("project-message", (data) => {
       console.log(data);
+      appendIncomingMessage(data);
     });
 
     axios
@@ -81,6 +85,45 @@ const Project = () => {
         console.log(err);
       });
   }, []);
+
+  function appendIncomingMessage(messageObject) {
+    const messageBox = document.querySelector(".message-box");
+
+    const message = document.createElement("div");
+    message.classList.add(
+      "message",
+      "max-w-56",
+      "flex",
+      "flex-col",
+      "p-2",
+      "bg-slate-50",
+      "rounded-md"
+    );
+    message.innerHTML = `<small class='opacity-65'>${messageObject.sender.email}</small>
+    <p >${messageObject.message}</p>
+    `;
+    messageBox.appendChild(message);
+  }
+
+  function appendOutgoingMessage(messageObject) {
+    const messageBox = document.querySelector(".message-box");
+
+    const message = document.createElement("div");
+    message.classList.add(
+      "message",
+      "ml-auto",
+      "max-w-56",
+      "flex",
+      "flex-col",
+      "p-2",
+      "bg-slate-50",
+      "rounded-md"
+    );
+    message.innerHTML = `<small class='opacity-65'>${messageObject.sender}</small>
+    <p >${messageObject.message}</p>
+    `;
+    messageBox.appendChild(message);
+  }
 
   return (
     <main className=" h-screen w-screen flex">
@@ -105,7 +148,9 @@ const Project = () => {
         {/* conversation area in which message-box, message and input field */}
 
         <div className="conversation-area flex-grow flex flex-col">
-          <div className="message-box p-2 flex-grow flex flex-col text-black gap-2">
+          <div
+            ref={messageBox}
+            className="message-box p-2 flex-grow flex flex-col text-black gap-2">
             <div className="message max-w-56 flex flex-col p-2 bg-slate-50 w-fit rounded-md">
               <small className="opacity-65">exmple@gmail.com</small>
               <p>Lorem ipsum dolor sit amet.</p>
