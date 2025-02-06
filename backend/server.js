@@ -81,7 +81,7 @@ io.on("connection", (socket) => {
 
     const messageData = {
       message: data.message,
-      sender: data.sender.email, // Attach sender ID
+      sender: data.sender, // Attach sender ID
     };
 
     console.log("Sending message:", messageData);

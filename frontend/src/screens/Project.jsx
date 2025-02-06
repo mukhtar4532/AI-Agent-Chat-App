@@ -97,6 +97,7 @@ const Project = () => {
       "flex-col",
       "p-2",
       "bg-slate-50",
+      "w-fit",
       "rounded-md"
     );
     message.innerHTML = `<small class='opacity-65'>${messageObject.sender.email}</small>
@@ -111,12 +112,14 @@ const Project = () => {
     const message = document.createElement("div");
     message.classList.add(
       "message",
-      "ml-auto",
       "max-w-56",
+      "ml-auto",
       "flex",
       "flex-col",
+      "justify-end",
       "p-2",
       "bg-slate-50",
+      "w-fit",
       "rounded-md"
     );
     message.innerHTML = `<small class='opacity-65'>${messageObject.sender}</small>
