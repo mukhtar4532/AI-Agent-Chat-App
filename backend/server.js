@@ -37,23 +37,13 @@ io.use(async (socket, next) => {
       return next(new Error("Authentication error"));
     }
 
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      if (!decoded) {
-        return next(new Error("Invalid token"));
-      }
-      socket.user = decoded;
-    } catch (error) {
-      return next(new Error("Authentication failed"));
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (!decoded) {
+      return next(new Error("Authentication Error"));
     }
 
-    // const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // if (!decoded) {
-    //   return next(new Error("Authentication Error"));
-    // }
-
-    // socket.user = decoded;
+    socket.user = decoded;
     next();
   } catch (error) {
     next(error);
@@ -67,34 +57,16 @@ io.on("connection", (socket) => {
   // console.log("a user connected");
   socket.join(socket.roomId);
 
-  // socket.on("project-message", (data) => {
-  //   console.log("Received message: ", data);
-
-  //   socket.broadcast.to(socket.roomId).emit("project-message", data);
-  // });
-
   socket.on("project-message", (data) => {
-    if (!socket.user) {
-      console.error("Sender is null because socket.user is not set");
-      return;
-    }
-
-    const messageData = {
-      message: data.message,
-      sender: data.sender, // Attach sender ID
-    };
-
-    console.log("Sending message:", messageData);
+    console.log("Sending message:", data);
 
     // Broadcast message to all users except sender
-    socket.broadcast.to(socket.roomId).emit("project-message", messageData);
+    socket.broadcast.to(socket.roomId).emit("project-message", data);
   });
 
-  socket.on("event", (data) => {
-    /* … */
-  });
   socket.on("disconnect", () => {
-    /* … */
+    console.log("User disconnected");
+    socket.leave(socket.roomId);
   });
 });
 

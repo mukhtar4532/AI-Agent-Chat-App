@@ -15,6 +15,7 @@ const Project = () => {
   const [selectedUserId, setSelectedUserId] = useState([]);
   const [users, setUsers] = useState([]);
   const [message, setMessage] = useState("");
+
   const messageBox = React.createRef();
 
   const { user } = useContext(UserContext);
@@ -35,7 +36,8 @@ const Project = () => {
     axios
       .put("/projects/add-user", {
         projectId: location.state.project._id,
-        users: selectedUserId,
+        // users: selectedUserId,
+        users: Array.from(selectedUserId),
       })
       .then((res) => {
         // console.log("Selected User ID:", selectedUserId);
@@ -93,7 +95,7 @@ const Project = () => {
     message.classList.add(
       "message",
       "max-w-56",
-      "self-start",
+      // "self-start",
       "flex",
       "flex-col",
       "p-2",
@@ -101,21 +103,22 @@ const Project = () => {
       "w-fit",
       "rounded-md"
     );
-    message.innerHTML = `<small class='opacity-65'>${messageObject.sender}</small>
+    message.innerHTML = `<small class='opacity-65'>${messageObject.sender.email}</small>
     <p >${messageObject.message}</p>
     `;
     messageBox.appendChild(message);
+    scrollToBottom();
   }
 
-  function appendOutgoingMessage(messageObject) {
+  function appendOutgoingMessage(message) {
     const messageBox = document.querySelector(".message-box");
 
-    const message = document.createElement("div");
-    message.classList.add(
+    const newMessage = document.createElement("div");
+    newMessage.classList.add(
       "message",
       "max-w-56",
-      // "ml-12",
-      "self-end",
+      "ml-auto",
+      // "self-end",
       "flex",
       "flex-col",
       "justify-end",
@@ -124,18 +127,23 @@ const Project = () => {
       "w-fit",
       "rounded-md"
     );
-    message.innerHTML = `<small class='opacity-65'>${messageObject.sender}</small>
-    <p >${messageObject.message}</p>
+    newMessage.innerHTML = `<small class='opacity-65'>${user.email}</small>
+    <p >${message}</p>
     `;
-    messageBox.appendChild(message);
+    messageBox.appendChild(newMessage);
+    scrollToBottom();
+  }
+
+  function scrollToBottom() {
+    messageBox.current.scrollTop = messageBox.current.scrollHeight;
   }
 
   return (
     <main className=" h-screen w-screen flex">
-      <section className="left flex flex-col relative h-full min-w-80 bg-slate-300">
+      <section className="left flex flex-col relative h-screen min-w-80 bg-slate-300">
         {/* header section in which collaborator and sidePanel */}
 
-        <header className="flex justify-between items-center p-2 w-full bg-slate-100 text-black ">
+        <header className="flex justify-between items-center  p-2 w-full bg-slate-100 text-black absolute top-0">
           <button
             onClick={() => setIsModalOpen(true)}
             className="flex gap-2 text-lg font-semibold                 ">
@@ -152,22 +160,12 @@ const Project = () => {
 
         {/* conversation area in which message-box, message and input field */}
 
-        <div className="conversation-area flex-grow flex flex-col">
-          {/* <div
+        <div className="conversation-area pt-14 pb-10 flex-grow flex flex-col h-full relative">
+          <div
             ref={messageBox}
-            className="message-box p-2 flex-grow flex flex-col text-black gap-2 items-start">
-            <div className="message max-w-56 flex flex-col p-2 bg-slate-50 w-fit rounded-md">
-              <small className="opacity-65">exmple@gmail.com</small>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
+            className="message-box p-2 flex-grow flex flex-col text-black gap-2 overflow-auto max-h-full scrollbar-hide"></div>
 
-            <div className="message max-w-56 ml-auto flex flex-col justify-end p-2 bg-slate-50 w-fit rounded-md">
-              <small className="opacity-65">exmple@gmail.com</small>
-              <p>Lorem ipsum dolor sit amet.</p>
-            </div>
-          </div> */}
-
-          <div className="inputField w-full flex">
+          <div className="inputField w-full flex absolute bottom-0">
             <input
               value={message}
               onChange={(e) => setMessage(e.target.value)}

@@ -8,9 +8,13 @@ const UserAuth = ({ children }) => {
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
-  console.log(user);
+  // console.log(user);
 
   useEffect(() => {
+    if (user) {
+      setLoading(false);
+    }
+
     if (!token) {
       navigate("/login");
       return;
@@ -19,17 +23,13 @@ const UserAuth = ({ children }) => {
     if (!user) {
       navigate("/login");
     }
-
-    if (user) {
-      setLoading(false);
-    }
   }, []);
 
   if (loading) {
     return <div>Loading...</div>;
   }
 
-  return <div>{children}</div>;
+  return <>{children}</>;
 };
 
 export default UserAuth;
