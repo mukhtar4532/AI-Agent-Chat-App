@@ -49,7 +49,7 @@ const Project = () => {
   }
 
   const send = () => {
-    // console.log(user);
+    console.log(user);
 
     sendMessage("project-message", {
       message,
@@ -93,6 +93,7 @@ const Project = () => {
     message.classList.add(
       "message",
       "max-w-56",
+      "self-start",
       "flex",
       "flex-col",
       "p-2",
@@ -100,7 +101,7 @@ const Project = () => {
       "w-fit",
       "rounded-md"
     );
-    message.innerHTML = `<small class='opacity-65'>${messageObject.sender.email}</small>
+    message.innerHTML = `<small class='opacity-65'>${messageObject.sender}</small>
     <p >${messageObject.message}</p>
     `;
     messageBox.appendChild(message);
@@ -113,7 +114,8 @@ const Project = () => {
     message.classList.add(
       "message",
       "max-w-56",
-      "ml-auto",
+      // "ml-12",
+      "self-end",
       "flex",
       "flex-col",
       "justify-end",
@@ -151,9 +153,9 @@ const Project = () => {
         {/* conversation area in which message-box, message and input field */}
 
         <div className="conversation-area flex-grow flex flex-col">
-          <div
+          {/* <div
             ref={messageBox}
-            className="message-box p-2 flex-grow flex flex-col text-black gap-2">
+            className="message-box p-2 flex-grow flex flex-col text-black gap-2 items-start">
             <div className="message max-w-56 flex flex-col p-2 bg-slate-50 w-fit rounded-md">
               <small className="opacity-65">exmple@gmail.com</small>
               <p>Lorem ipsum dolor sit amet.</p>
@@ -163,7 +165,7 @@ const Project = () => {
               <small className="opacity-65">exmple@gmail.com</small>
               <p>Lorem ipsum dolor sit amet.</p>
             </div>
-          </div>
+          </div> */}
 
           <div className="inputField w-full flex">
             <input
