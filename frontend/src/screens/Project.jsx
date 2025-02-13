@@ -7,6 +7,7 @@ import {
   receiveMessage,
   sendMessage,
 } from "../config/socket.js";
+import Markdown from "markdown-to-jsx";
 
 const Project = () => {
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
@@ -103,9 +104,19 @@ const Project = () => {
       "w-fit",
       "rounded-md"
     );
-    message.innerHTML = `<small class='opacity-65'>${messageObject.sender.email}</small>
-    <p >${messageObject.message}</p>
-    `;
+
+    if (messageObject.sender._id === "ai") {
+      const markDown = <Markdown>{messageObject.message}</Markdown>;
+
+      message.innerHTML = `<small class='opacity-65'>${messageObject.sender.email}</small>
+      <p >${markDown}</p>
+      `;
+    } else {
+      message.innerHTML = `<small class='opacity-65'>${messageObject.sender.email}</small>
+      <p >${messageObject.message}</p>
+      `;
+    }
+
     messageBox.appendChild(message);
     scrollToBottom();
   }
