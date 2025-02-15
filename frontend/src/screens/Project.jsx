@@ -16,13 +16,12 @@ const Project = () => {
   const [selectedUserId, setSelectedUserId] = useState([]);
   const [users, setUsers] = useState([]);
   const [message, setMessage] = useState("");
-
   const messageBox = React.createRef();
-
   const { user } = useContext(UserContext);
   const location = useLocation();
   // console.log(location.state);
   const [project, setProject] = useState(location.state.project);
+  const [messages, setMessages] = useState([]);
 
   const handleUserSelection = (userId) => {
     setSelectedUserId(
@@ -59,7 +58,8 @@ const Project = () => {
       sender: user,
     });
 
-    appendOutgoingMessage(message);
+    // appendOutgoingMessage(message);
+    setMessages((prevMessages) => [...prevMessages, { sender: user, message }]);
 
     setMessage("");
   };
@@ -68,8 +68,9 @@ const Project = () => {
     initializeSocket(project._id);
 
     receiveMessage("project-message", (data) => {
-      console.log(data);
-      appendIncomingMessage(data);
+      // console.log(data);
+      // appendIncomingMessage(data);
+      setMessages((prevMessages) => [...prevMessages, data]);
     });
 
     axios
@@ -89,61 +90,61 @@ const Project = () => {
       });
   }, []);
 
-  function appendIncomingMessage(messageObject) {
-    const messageBox = document.querySelector(".message-box");
+  // function appendIncomingMessage(messageObject) {
+  //   const messageBox = document.querySelector(".message-box");
 
-    const message = document.createElement("div");
-    message.classList.add(
-      "message",
-      "max-w-56",
-      // "self-start",
-      "flex",
-      "flex-col",
-      "p-2",
-      "bg-slate-50",
-      "w-fit",
-      "rounded-md"
-    );
+  //   const message = document.createElement("div");
+  //   message.classList.add(
+  //     "message",
+  //     "max-w-56",
+  //     // "self-start",
+  //     "flex",
+  //     "flex-col",
+  //     "p-2",
+  //     "bg-slate-50",
+  //     "w-fit",
+  //     "rounded-md"
+  //   );
 
-    if (messageObject.sender._id === "ai") {
-      const markDown = <Markdown>{messageObject.message}</Markdown>;
+  //   if (messageObject.sender._id === "ai") {
+  //     const markDown = <Markdown>{messageObject.message}</Markdown>;
 
-      message.innerHTML = `<small class='opacity-65'>${messageObject.sender.email}</small>
-      <p >${markDown}</p>
-      `;
-    } else {
-      message.innerHTML = `<small class='opacity-65'>${messageObject.sender.email}</small>
-      <p >${messageObject.message}</p>
-      `;
-    }
+  //     message.innerHTML = `<small class='opacity-65'>${messageObject.sender.email}</small>
+  //     <p >${markDown}</p>
+  //     `;
+  //   } else {
+  //     message.innerHTML = `<small class='opacity-65'>${messageObject.sender.email}</small>
+  //     <p >${messageObject.message}</p>
+  //     `;
+  //   }
 
-    messageBox.appendChild(message);
-    scrollToBottom();
-  }
+  //   messageBox.appendChild(message);
+  //   scrollToBottom();
+  // }
 
-  function appendOutgoingMessage(message) {
-    const messageBox = document.querySelector(".message-box");
+  // function appendOutgoingMessage(message) {
+  //   const messageBox = document.querySelector(".message-box");
 
-    const newMessage = document.createElement("div");
-    newMessage.classList.add(
-      "message",
-      "max-w-56",
-      "ml-auto",
-      // "self-end",
-      "flex",
-      "flex-col",
-      "justify-end",
-      "p-2",
-      "bg-slate-50",
-      "w-fit",
-      "rounded-md"
-    );
-    newMessage.innerHTML = `<small class='opacity-65'>${user.email}</small>
-    <p >${message}</p>
-    `;
-    messageBox.appendChild(newMessage);
-    scrollToBottom();
-  }
+  //   const newMessage = document.createElement("div");
+  //   newMessage.classList.add(
+  //     "message",
+  //     "max-w-56",
+  //     "ml-auto",
+  //     // "self-end",
+  //     "flex",
+  //     "flex-col",
+  //     "justify-end",
+  //     "p-2",
+  //     "bg-slate-50",
+  //     "w-fit",
+  //     "rounded-md"
+  //   );
+  //   newMessage.innerHTML = `<small class='opacity-65'>${user.email}</small>
+  //   <p >${message}</p>
+  //   `;
+  //   messageBox.appendChild(newMessage);
+  //   scrollToBottom();
+  // }
 
   function scrollToBottom() {
     messageBox.current.scrollTop = messageBox.current.scrollHeight;
@@ -151,7 +152,7 @@ const Project = () => {
 
   return (
     <main className=" h-screen w-screen flex">
-      <section className="left flex flex-col relative h-screen min-w-80 bg-slate-300">
+      <section className="left flex flex-col relative h-screen min-w-96 bg-slate-300">
         {/* header section in which collaborator and sidePanel */}
 
         <header className="flex justify-between items-center  p-2 w-full bg-slate-100 text-black absolute top-0">
@@ -174,7 +175,26 @@ const Project = () => {
         <div className="conversation-area pt-14 pb-10 flex-grow flex flex-col h-full relative">
           <div
             ref={messageBox}
-            className="message-box p-2 flex-grow flex flex-col text-black gap-2 overflow-auto max-h-full scrollbar-hide"></div>
+            className="message-box p-2 flex-grow flex flex-col text-black gap-2 overflow-auto max-h-full scrollbar-hide">
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`${
+                  msg.sender._id === "ai" ? "" : "ml-auto"
+                } max-w-64 message flex flex-col p-2 bg-slate-50 w-fit rounded-md`}>
+                <small className="opacity-65">{msg.sender.email}</small>
+                <p>
+                  {msg.sender._id === "ai" ? (
+                    <div className="overflow-auto bg-slate-950 text-white">
+                      <Markdown>{msg.message}</Markdown>
+                    </div>
+                  ) : (
+                    msg.message
+                  )}
+                </p>
+              </div>
+            ))}
+          </div>
 
           <div className="inputField w-full flex absolute bottom-0">
             <input
