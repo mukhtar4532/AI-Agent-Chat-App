@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useContext, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "../config/axios.js";
 import { UserContext } from "../context/user.context.jsx";
@@ -8,6 +8,21 @@ import {
   sendMessage,
 } from "../config/socket.js";
 import Markdown from "markdown-to-jsx";
+
+function SyntaxHighlightedCode(props) {
+  const ref = useRef(null);
+
+  React.useEffect(() => {
+    if (ref.current && props.className?.includes("lang-") && window.hljs) {
+      window.hljs.highlightElement(ref.current);
+
+      // hljs won't reprocess the element unless this attribute is removed
+      ref.current.removeAttribute("data-highlighted");
+    }
+  }, [props.className, props.children]);
+
+  return <code {...props} ref={ref} />;
+}
 
 const Project = () => {
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
@@ -180,13 +195,24 @@ const Project = () => {
               <div
                 key={index}
                 className={`${
-                  msg.sender._id === "ai" ? "" : "ml-auto"
-                } max-w-64 message flex flex-col p-2 bg-slate-50 w-fit rounded-md`}>
+                  msg.sender._id === "ai" ? "max-w-80" : "max-w-60"
+                } ${
+                  msg.sender._id == user._id.toString() && "ml-auto"
+                } message flex flex-col p-2 bg-slate-50 w-fit rounded-md`}>
                 <small className="opacity-65">{msg.sender.email}</small>
                 <p>
                   {msg.sender._id === "ai" ? (
-                    <div className="overflow-auto bg-slate-950 text-white">
-                      <Markdown>{msg.message}</Markdown>
+                    <div className="overflow-auto p-2 bg-slate-950 text-white rounded-sm">
+                      <Markdown
+                        options={{
+                          overrides: {
+                            code: {
+                              component: SyntaxHighlightedCode,
+                            },
+                          },
+                        }}>
+                        {msg.message}
+                      </Markdown>
                     </div>
                   ) : (
                     msg.message
