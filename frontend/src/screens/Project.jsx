@@ -79,6 +79,24 @@ const Project = () => {
     setMessage("");
   };
 
+  function WriteAiMessage(message) {
+    const messageObject = JSON.parse(message);
+    return (
+      <div className="overflow-auto p-2 bg-slate-950 text-white rounded-sm">
+        <Markdown
+          options={{
+            overrides: {
+              code: {
+                component: SyntaxHighlightedCode,
+              },
+            },
+          }}>
+          {messageObject.text}
+        </Markdown>
+      </div>
+    );
+  }
+
   useEffect(() => {
     initializeSocket(project._id);
 
@@ -201,22 +219,9 @@ const Project = () => {
                 } message flex flex-col p-2 bg-slate-50 w-fit rounded-md`}>
                 <small className="opacity-65">{msg.sender.email}</small>
                 <p>
-                  {msg.sender._id === "ai" ? (
-                    <div className="overflow-auto p-2 bg-slate-950 text-white rounded-sm">
-                      <Markdown
-                        options={{
-                          overrides: {
-                            code: {
-                              component: SyntaxHighlightedCode,
-                            },
-                          },
-                        }}>
-                        {msg.message}
-                      </Markdown>
-                    </div>
-                  ) : (
-                    msg.message
-                  )}
+                  {msg.sender._id === "ai"
+                    ? WriteAiMessage(msg.message)
+                    : msg.message}
                 </p>
               </div>
             ))}
