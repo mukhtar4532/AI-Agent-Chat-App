@@ -37,6 +37,16 @@ const Project = () => {
   // console.log(location.state);
   const [project, setProject] = useState(location.state.project);
   const [messages, setMessages] = useState([]);
+  const [fileTree, setFileTree] = useState({
+    "app.js": {
+      content: `const express = require('express') ;`,
+    },
+    "package.json": {
+      content: `{
+        "name": "temp-server",
+      }`,
+    },
+  });
 
   const handleUserSelection = (userId) => {
     setSelectedUserId(
@@ -273,6 +283,20 @@ const Project = () => {
               })}
           </div>
         </div>
+      </section>
+
+      <section className="right bg-red-50 flex-grow h-full flex ">
+        <div className="explorer h-full max-w-64 min-w-60 bg-slate-200">
+          <div className="file-tree w-full">
+            <div className="tree-element cursor-pointer p-2 px-4 flex items-center gap-2 bg-slate-300 w-full rounded-md">
+              {Object.keys(fileTree).map((file, index) => (
+                <p className="font-semibold text-lg text-black">{file}</p>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="code-editor"></div>
       </section>
 
       {/* Modal Section start here */}
