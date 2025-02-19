@@ -48,6 +48,9 @@ const Project = () => {
     },
   });
 
+  const [currentFile, setCurrentFile] = useState(null);
+  const [openFiles, setOpenFiles] = useState([]);
+
   const handleUserSelection = (userId) => {
     setSelectedUserId(
       (prevUserId) =>
@@ -288,15 +291,56 @@ const Project = () => {
       <section className="right bg-red-50 flex-grow h-full flex ">
         <div className="explorer h-full max-w-64 min-w-60 bg-slate-200">
           <div className="file-tree w-full">
-            <div className="tree-element cursor-pointer p-2 px-4 flex items-center gap-2 bg-slate-300 w-full rounded-md">
-              {Object.keys(fileTree).map((file, index) => (
+            {Object.keys(fileTree).map((file, index) => (
+              <button
+                onClick={() => {
+                  setCurrentFile(file);
+                  setOpenFiles([...new Set([...openFiles, file])]);
+                }}
+                className="tree-element cursor-pointer p-2 px-4 flex flex-col  gap-2 bg-slate-300 w-full rounded-md">
                 <p className="font-semibold text-lg text-black">{file}</p>
-              ))}
-            </div>
+              </button>
+            ))}
           </div>
         </div>
 
-        <div className="code-editor"></div>
+        {currentFile && (
+          <div className="code-editor flex flex-col flex-grow h-full text-black">
+            {/* {currentFile && (
+            <div className="code-editor-header flex justify-between items-center p-2 bg-slate-200 text-black">
+              <h1 className="font-semibold text-lg">{currentFile}</h1>
+              <button className="p-2" onClick={() => setCurrentFile(null)}>
+                <i className="ri-close-fill"></i>
+              </button>
+            </div>
+          )} */}
+
+            <div className="top flex">
+              {openFiles.map((file, index) => (
+                <button
+                  onClick={() => setCurrentFile(file)}
+                  className={`open-file cursor-pointer p-2 px-4 w-fit flex items-center gap-2 bg-slate-300`}>
+                  <p className="font-semibold text-lg">{file}</p>
+                </button>
+              ))}
+            </div>
+            <div className="bottom flex flex-grow">
+              {fileTree[currentFile] && (
+                <textarea
+                  value={fileTree[currentFile].content}
+                  onChange={(e) => {
+                    setFileTree({
+                      ...fileTree,
+                      [currentFile]: {
+                        content: e.target.value,
+                      },
+                    });
+                  }}
+                  className="w-full h-full p-4 bg-slate-50 outline-none"></textarea>
+              )}
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Modal Section start here */}
