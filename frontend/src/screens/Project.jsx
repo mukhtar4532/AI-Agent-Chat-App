@@ -8,6 +8,8 @@ import {
   sendMessage,
 } from "../config/socket.js";
 import Markdown from "markdown-to-jsx";
+import hljs from "highlight.js";
+import "highlight.js/styles/github-dark.css"; // Choose a theme
 
 function SyntaxHighlightedCode(props) {
   const ref = useRef(null);
@@ -24,6 +26,39 @@ function SyntaxHighlightedCode(props) {
   return <code {...props} ref={ref} />;
 }
 
+// function SyntaxHighlightedCode({ children, className }) {
+//   const ref = useRef(null);
+
+//   useEffect(() => {
+//     if (ref.current && className?.includes("lang-")) {
+//       hljs.highlightElement(ref.current);
+//     }
+//   }, [children, className]); // Re-highlight when content changes
+
+//   return (
+//     <code ref={ref} className={className}>
+//       {children}
+//     </code>
+//   );
+// }
+
+// function SyntaxHighlightedCode({ className, children }) {
+//   const ref = useRef(null);
+
+//   useEffect(() => {
+//     if (ref.current && className?.includes("lang-") && window.hljs) {
+//       ref.current.removeAttribute("data-highlighted"); // Ensure hljs can re-highlight
+//       window.hljs.highlightElement(ref.current);
+//     }
+//   }, [className, children]);
+
+//   return (
+//     <code ref={ref} className={className}>
+//       {children}
+//     </code>
+//   );
+// }
+
 const Project = () => {
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
 
@@ -37,16 +72,7 @@ const Project = () => {
   // console.log(location.state);
   const [project, setProject] = useState(location.state.project);
   const [messages, setMessages] = useState([]);
-  const [fileTree, setFileTree] = useState({
-    "app.js": {
-      content: `const express = require('express') ;`,
-    },
-    "package.json": {
-      content: `{
-        "name": "temp-server",
-      }`,
-    },
-  });
+  const [fileTree, setFileTree] = useState({});
 
   const [currentFile, setCurrentFile] = useState(null);
   const [openFiles, setOpenFiles] = useState([]);
@@ -94,6 +120,7 @@ const Project = () => {
 
   function WriteAiMessage(message) {
     const messageObject = JSON.parse(message);
+
     return (
       <div className="overflow-auto p-2 bg-slate-950 text-white rounded-sm">
         <Markdown
@@ -114,8 +141,13 @@ const Project = () => {
     initializeSocket(project._id);
 
     receiveMessage("project-message", (data) => {
-      // console.log(data);
+      console.log(JSON.parse(data.message));
       // appendIncomingMessage(data);
+      const message = JSON.parse(data.message);
+
+      if (message.fileTree) {
+        setFileTree(message.fileTree);
+      }
       setMessages((prevMessages) => [...prevMessages, data]);
     });
 
@@ -306,37 +338,48 @@ const Project = () => {
 
         {currentFile && (
           <div className="code-editor flex flex-col flex-grow h-full text-black">
-            {/* {currentFile && (
-            <div className="code-editor-header flex justify-between items-center p-2 bg-slate-200 text-black">
-              <h1 className="font-semibold text-lg">{currentFile}</h1>
-              <button className="p-2" onClick={() => setCurrentFile(null)}>
-                <i className="ri-close-fill"></i>
-              </button>
-            </div>
-          )} */}
-
             <div className="top flex">
               {openFiles.map((file, index) => (
                 <button
+                  key={index}
                   onClick={() => setCurrentFile(file)}
                   className={`open-file cursor-pointer p-2 px-4 w-fit flex items-center gap-2 bg-slate-300`}>
                   <p className="font-semibold text-lg">{file}</p>
                 </button>
               ))}
             </div>
-            <div className="bottom flex flex-grow">
+            <div className="bottom flex flex-grow max-w-full shrink overflow-auto">
               {fileTree[currentFile] && (
-                <textarea
-                  value={fileTree[currentFile].content}
-                  onChange={(e) => {
-                    setFileTree({
-                      ...fileTree,
-                      [currentFile]: {
-                        content: e.target.value,
-                      },
-                    });
-                  }}
-                  className="w-full h-full p-4 bg-slate-50 outline-none"></textarea>
+                <div className="code-editor-area h-full overflow-auto flex-grow bg-slate-50">
+                  <pre className="hljs h-full">
+                    <code
+                      className="hljs h-full outline-none"
+                      contentEditable
+                      suppressContentEditableWarning
+                      onBlur={(e) => {
+                        const updateContent = e.target.innerText;
+                        setFileTree((prevFileTree) => ({
+                          ...prevFileTree,
+                          [currentFile]: {
+                            ...prevFileTree[currentFile],
+                            content: updateContent,
+                          },
+                        }));
+                      }}
+                      dangerouslySetInnerHTML={{
+                        __html: hljs.highlight(
+                          "javascript",
+                          fileTree[currentFile].content
+                        ),
+                      }}
+                      style={{
+                        whiteSpace: "pre-wrap",
+                        paddingBottom: "25rem",
+                        counterSet: "line-numbering",
+                      }}
+                    />
+                  </pre>
+                </div>
               )}
             </div>
           </div>

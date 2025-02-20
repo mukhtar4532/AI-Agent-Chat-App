@@ -45,18 +45,18 @@ const model = genAI.getGenerativeModel({
                 "express": "^4.18.2"
               }
             }       
-          ",
-          
-          "buildCommand": {
+          ",        
+        },  
+      },
+
+      "buildCommand": {
             mainItem: "npm",
             commands: ["install"]
-          },
+      },
 
-          "startCommand": {
+      "startCommand": {
             mainItem: "node",
             commands: ["app.js"]
-          }
-        }   
       }
     }
 
