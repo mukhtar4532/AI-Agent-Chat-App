@@ -362,15 +362,16 @@ const Project = () => {
                           ...prevFileTree,
                           [currentFile]: {
                             ...prevFileTree[currentFile],
-                            content: updateContent,
+                            contents: updateContent,
                           },
                         }));
                       }}
                       dangerouslySetInnerHTML={{
-                        __html: hljs.highlight(
-                          "javascript",
-                          fileTree[currentFile].content
-                        ),
+                        __html: fileTree[currentFile]?.contents
+                          ? hljs.highlight(fileTree[currentFile].contents, {
+                              language: "javascript",
+                            }).value
+                          : "No content available",
                       }}
                       style={{
                         whiteSpace: "pre-wrap",

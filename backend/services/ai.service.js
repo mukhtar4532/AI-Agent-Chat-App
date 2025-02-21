@@ -17,35 +17,39 @@ const model = genAI.getGenerativeModel({
       "text": "This is your fileTree structure of the express server.",
       "fileTree": {
         "app.js": {
-          content: "
-            var express = require('express');
-            var app = express();
+          file: {
+            contents: "
+              var express = require('express');
+              var app = express();
 
-            app.get('/', function (req, res) {
-                res.send('Hello, Express with ES5!');
-            });
+              app.get('/', function (req, res) {
+                  res.send('Hello, Express with ES5!');
+              });
 
-            app.listen(3000, function () {
-            console.log('Server is running ' + 3000);
-            });       
-          "   
+              app.listen(3000, function () {
+              console.log('Server is running ' + 3000);
+              });       
+            "
+          },
         },
 
         "package.json": {
-          content: "
-            {
-              "name": "express-es5-setup",
-              "version": "1.0.0",
-              "description": "Simple Express setup using ES5",
-              "main": "server.js",
-              "scripts": {
-                "start": "node server.js"
-              },
-              "dependencies": {
-                "express": "^4.18.2"
-              }
-            }       
-          ",        
+          file: {
+            contents: "
+              {
+                "name": "express-es5-setup",
+                "version": "1.0.0",
+                "description": "Simple Express setup using ES5",
+                "main": "server.js",
+                "scripts": {
+                  "start": "node server.js"
+                },
+                "dependencies": {
+                  "express": "^4.18.2"
+                },
+              },     
+            ",
+          },  
         },  
       },
 
