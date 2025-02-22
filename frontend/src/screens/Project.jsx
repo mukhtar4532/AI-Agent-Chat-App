@@ -9,7 +9,8 @@ import {
 } from "../config/socket.js";
 import Markdown from "markdown-to-jsx";
 import hljs from "highlight.js";
-import "highlight.js/styles/github-dark.css"; // Choose a theme
+import { getWebContainer } from "../config/webContainer.js";
+// import "highlight.js/styles/github-dark.css"; // Choose a theme
 
 function SyntaxHighlightedCode(props) {
   const ref = useRef(null);
@@ -76,6 +77,7 @@ const Project = () => {
 
   const [currentFile, setCurrentFile] = useState(null);
   const [openFiles, setOpenFiles] = useState([]);
+  const [webContainer, setWebContainer] = useState(null);
 
   const handleUserSelection = (userId) => {
     setSelectedUserId(
@@ -139,11 +141,18 @@ const Project = () => {
 
   useEffect(() => {
     initializeSocket(project._id);
+    if (!webContainer) {
+      getWebContainer().then((container) => {
+        setWebContainer(container);
+        console.log("Container Started");
+      });
+    }
 
     receiveMessage("project-message", (data) => {
       console.log(JSON.parse(data.message));
       // appendIncomingMessage(data);
       const message = JSON.parse(data.message);
+      webContainer?.mount(message.fileTree);
 
       if (message.fileTree) {
         setFileTree(message.fileTree);
@@ -367,10 +376,13 @@ const Project = () => {
                         }));
                       }}
                       dangerouslySetInnerHTML={{
-                        __html: fileTree[currentFile]?.contents
-                          ? hljs.highlight(fileTree[currentFile].contents, {
-                              language: "javascript",
-                            }).value
+                        __html: fileTree[currentFile]?.file.contents
+                          ? hljs.highlight(
+                              fileTree[currentFile].file.contents,
+                              {
+                                language: "javascript",
+                              }
+                            ).value
                           : "No content available",
                       }}
                       style={{

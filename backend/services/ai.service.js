@@ -30,7 +30,7 @@ const model = genAI.getGenerativeModel({
               console.log('Server is running ' + 3000);
               });       
             "
-          },
+          }
         },
 
         "package.json": {
@@ -49,7 +49,7 @@ const model = genAI.getGenerativeModel({
                 },
               },     
             ",
-          },  
+          }  
         },  
       },
 
