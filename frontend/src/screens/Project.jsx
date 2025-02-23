@@ -10,6 +10,7 @@ import {
 import Markdown from "markdown-to-jsx";
 import hljs from "highlight.js";
 import { getWebContainer } from "../config/webContainer.js";
+
 // import "highlight.js/styles/github-dark.css"; // Choose a theme
 
 function SyntaxHighlightedCode(props) {
@@ -233,6 +234,48 @@ const Project = () => {
   //   scrollToBottom();
   // }
 
+  const webcontainer = async () => {
+    if (!window.webContainer) {
+      console.error("WebContainer is not initialized!");
+      return;
+    }
+
+    try {
+      // Run npm install
+      const installProcess = await window.webContainer.spawn("npm", [
+        "install",
+      ]);
+      installProcess.output.pipeTo(
+        new WritableStream({
+          write(chunk) {
+            console.log("Install:", chunk);
+          },
+        })
+      );
+
+      // Wait for installation to complete
+      const exitCode = await installProcess.exit;
+      if (exitCode !== 0) {
+        console.error("npm install failed!");
+        return;
+      }
+
+      console.log("Dependencies installed. Starting the app...");
+
+      // Run npm start
+      const runProcess = await window.webContainer.spawn("npm", ["start"]);
+      runProcess.output.pipeTo(
+        new WritableStream({
+          write(chunk) {
+            console.log("Run:", chunk);
+          },
+        })
+      );
+    } catch (error) {
+      console.error("Error running WebContainer commands:", error);
+    }
+  };
+
   function scrollToBottom() {
     messageBox.current.scrollTop = messageBox.current.scrollHeight;
   }
@@ -345,9 +388,9 @@ const Project = () => {
           </div>
         </div>
 
-        {currentFile && (
-          <div className="code-editor flex flex-col flex-grow h-full text-black">
-            <div className="top flex">
+        <div className="code-editor flex flex-col flex-grow h-full text-black">
+          <div className="top flex  justify-between w-full">
+            <div className="files flex">
               {openFiles.map((file, index) => (
                 <button
                   key={index}
@@ -357,46 +400,73 @@ const Project = () => {
                 </button>
               ))}
             </div>
-            <div className="bottom flex flex-grow max-w-full shrink overflow-auto">
-              {fileTree[currentFile] && (
-                <div className="code-editor-area h-full overflow-auto flex-grow bg-slate-50">
-                  <pre className="hljs h-full">
-                    <code
-                      className="hljs h-full outline-none"
-                      contentEditable
-                      suppressContentEditableWarning
-                      onBlur={(e) => {
-                        const updateContent = e.target.innerText;
-                        setFileTree((prevFileTree) => ({
-                          ...prevFileTree,
-                          [currentFile]: {
-                            ...prevFileTree[currentFile],
-                            contents: updateContent,
-                          },
-                        }));
-                      }}
-                      dangerouslySetInnerHTML={{
-                        __html: fileTree[currentFile]?.file.contents
-                          ? hljs.highlight(
-                              fileTree[currentFile].file.contents,
-                              {
-                                language: "javascript",
-                              }
-                            ).value
-                          : "No content available",
-                      }}
-                      style={{
-                        whiteSpace: "pre-wrap",
-                        paddingBottom: "25rem",
-                        counterSet: "line-numbering",
-                      }}
-                    />
-                  </pre>
-                </div>
-              )}
+
+            <div className="actions flex gap-2">
+              <button
+                onClick={async () => {
+                  await webContainer.mount(fileTree);
+                  const installProcess = await webContainer.spawn("npm", [
+                    "install",
+                  ]);
+                  installProcess.output.pipeTo(
+                    new WritableStream({
+                      write(chunk) {
+                        console.log(chunk);
+                      },
+                    })
+                  );
+                  const runProcess = await webContainer.spawn("npm", [
+                    "install",
+                  ]);
+                  runProcess.output.pipeTo(
+                    new WritableStream({
+                      write(chunk) {
+                        console.log(chunk);
+                      },
+                    })
+                  );
+                }}
+                className="p-2 px-4 bg-slate-300">
+                Run
+              </button>
             </div>
           </div>
-        )}
+          <div className="bottom flex flex-grow max-w-full shrink overflow-auto">
+            {fileTree[currentFile] && (
+              <div className="code-editor-area h-full overflow-auto flex-grow bg-slate-50">
+                <pre className="hljs h-full">
+                  <code
+                    className="hljs h-full outline-none"
+                    contentEditable
+                    suppressContentEditableWarning
+                    onBlur={(e) => {
+                      const updateContent = e.target.innerText;
+                      setFileTree((prevFileTree) => ({
+                        ...prevFileTree,
+                        [currentFile]: {
+                          ...prevFileTree[currentFile],
+                          contents: updateContent,
+                        },
+                      }));
+                    }}
+                    dangerouslySetInnerHTML={{
+                      __html: fileTree[currentFile]?.file.contents
+                        ? hljs.highlight(fileTree[currentFile].file.contents, {
+                            language: "javascript",
+                          }).value
+                        : "No content available",
+                    }}
+                    style={{
+                      whiteSpace: "pre-wrap",
+                      paddingBottom: "25rem",
+                      counterSet: "line-numbering",
+                    }}
+                  />
+                </pre>
+              </div>
+            )}
+          </div>
+        </div>
       </section>
 
       {/* Modal Section start here */}
