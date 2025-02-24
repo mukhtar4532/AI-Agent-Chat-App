@@ -79,6 +79,8 @@ const Project = () => {
   const [currentFile, setCurrentFile] = useState(null);
   const [openFiles, setOpenFiles] = useState([]);
   const [webContainer, setWebContainer] = useState(null);
+  const [iframeUrl, setIframeUrl] = useState(null);
+  const [runProcess, setRunProcess] = useState(null);
 
   const handleUserSelection = (userId) => {
     setSelectedUserId(
@@ -234,48 +236,6 @@ const Project = () => {
   //   scrollToBottom();
   // }
 
-  const webcontainer = async () => {
-    if (!window.webContainer) {
-      console.error("WebContainer is not initialized!");
-      return;
-    }
-
-    try {
-      // Run npm install
-      const installProcess = await window.webContainer.spawn("npm", [
-        "install",
-      ]);
-      installProcess.output.pipeTo(
-        new WritableStream({
-          write(chunk) {
-            console.log("Install:", chunk);
-          },
-        })
-      );
-
-      // Wait for installation to complete
-      const exitCode = await installProcess.exit;
-      if (exitCode !== 0) {
-        console.error("npm install failed!");
-        return;
-      }
-
-      console.log("Dependencies installed. Starting the app...");
-
-      // Run npm start
-      const runProcess = await window.webContainer.spawn("npm", ["start"]);
-      runProcess.output.pipeTo(
-        new WritableStream({
-          write(chunk) {
-            console.log("Run:", chunk);
-          },
-        })
-      );
-    } catch (error) {
-      console.error("Error running WebContainer commands:", error);
-    }
-  };
-
   function scrollToBottom() {
     messageBox.current.scrollTop = messageBox.current.scrollHeight;
   }
@@ -401,6 +361,7 @@ const Project = () => {
               ))}
             </div>
 
+            {/* webContainer Logic here */}
             <div className="actions flex gap-2">
               <button
                 onClick={async () => {
@@ -415,16 +376,23 @@ const Project = () => {
                       },
                     })
                   );
-                  const runProcess = await webContainer.spawn("npm", [
-                    "install",
-                  ]);
-                  runProcess.output.pipeTo(
+                  if (runProcess) {
+                    runProcess.kill();
+                  }
+                  let tempProcess = await webContainer.spawn("npm", ["start"]);
+                  tempProcess.output.pipeTo(
                     new WritableStream({
                       write(chunk) {
                         console.log(chunk);
                       },
                     })
                   );
+
+                  setRunProcess(tempProcess);
+                  webContainer.on("server-ready", (port, url) => {
+                    console.log(port, url);
+                    setIframeUrl(url);
+                  });
                 }}
                 className="p-2 px-4 bg-slate-300">
                 Run
@@ -445,7 +413,10 @@ const Project = () => {
                         ...prevFileTree,
                         [currentFile]: {
                           ...prevFileTree[currentFile],
-                          contents: updateContent,
+                          file: {
+                            ...prevFileTree[currentFile].file,
+                            contents: updateContent,
+                          },
                         },
                       }));
                     }}
@@ -467,6 +438,23 @@ const Project = () => {
             )}
           </div>
         </div>
+
+        {iframeUrl && webContainer && (
+          <div className="flex flex-col min-w-96 h-full text-black">
+            <div className="address-bar">
+              <input
+                type="text"
+                onChange={(e) => setIframeUrl(e.target.value)}
+                value={iframeUrl}
+                className="w-full p-2 px-4 bg-slate-200"
+              />
+            </div>
+            <iframe
+              src={iframeUrl}
+              sandbox="allow-scripts allow-same-origin allow-forms"
+              className="w-full h-full"></iframe>
+          </div>
+        )}
       </section>
 
       {/* Modal Section start here */}
