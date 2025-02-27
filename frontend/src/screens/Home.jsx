@@ -44,7 +44,7 @@ export const Home = () => {
       <div className="projects flex flex-wrap gap-3">
         <button
           onClick={() => setIsModalOpen(true)}
-          className="project p-4 border border-slate-500 min-w-52 hover:bg-slate-800 rounded-md m-auto text-xl">
+          className="project p-4 border border-none min-w-52 hover:bg-amber-400 rounded-md m-auto text-xl">
           New Project
           <i className="ri-menu-add-line ml-3"></i>
         </button>
@@ -57,7 +57,7 @@ export const Home = () => {
               });
             }}
             key={project.id}
-            className="project flex flex-col gap-2 p-4 cursor-pointer border border-slate-500 rounded-md min-w-52 hover:bg-slate-800 m-auto text-xl">
+            className="project flex flex-col gap-2 p-4 cursor-pointer border border-none rounded-md min-w-52 hover:bg-amber-400 m-auto text-xl">
             <h2 className=" font-semibold">{project.name}</h2>
             <div className="flex gap-2">
               <p>
@@ -74,14 +74,14 @@ export const Home = () => {
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="w-full max-w-md p-6 bg-gray-800 rounded-lg shadow-lg">
+        <div className="fixed inset-0 flex items-center justify-center bg-slate-50 bg-opacity-20">
+          <div className="w-full max-w-md p-6 bg-amber-400 rounded-lg shadow-lg">
             {/* Modal Header */}
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-white">New Project</h2>
+              <h2 className="text-xl text-center font-bold ">New Project</h2>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-gray-400 hover:text-gray-200">
+                className="hover:text-gray-200">
                 ✕
               </button>
             </div>
@@ -89,14 +89,14 @@ export const Home = () => {
             {/* Modal Form */}
             <form onSubmit={createProject}>
               <div className="mb-4">
-                <label className="block mb-2 text-sm font-medium text-gray-300">
+                <label className="block mb-2 text-sm font-medium">
                   Project Name
                 </label>
                 <input
                   type="text"
                   onChange={(e) => setProjectName(e.target.value)}
                   value={projectName}
-                  className="w-full px-4 py-2  rounded-lg bg-gray-700 text-gray-200 placeholder-gray-400 focus:ring-indigo-500 focus:border-indigo-500"
+                  className="w-full px-4 py-2  rounded-lg bg-amber-300"
                   placeholder="Enter project name"
                 />
               </div>

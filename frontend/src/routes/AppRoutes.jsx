@@ -7,7 +7,7 @@ import UserAuth from "../auth/UserAuth";
 
 const AppRoutes = () => {
   return (
-    <div className="dark bg-gray-900 text-white min-h-screen flex items-center justify-center">
+    <div className="dark bg-amber-300  min-h-screen flex items-center justify-center">
       <BrowserRouter>
         <Routes>
           <Route

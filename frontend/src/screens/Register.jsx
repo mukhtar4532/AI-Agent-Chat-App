@@ -31,7 +31,7 @@ export const Register = () => {
       });
   }
   return (
-    <div className="w-full max-w-md p-8 space-y-4 bg-gray-800 rounded-lg shadow-md">
+    <div className="w-full max-w-md p-8 space-y-4 bg-amber-400 rounded-lg shadow-md">
       <h2 className="text-2xl font-bold text-center">Sign Up</h2>
 
       <form className="space-y-4" onSubmit={submitHandler}>
@@ -43,7 +43,7 @@ export const Register = () => {
             onChange={(e) => setEmail(e.target.value)}
             type="email"
             id="email"
-            className="w-full px-4 py-2 rounded-lg bg-gray-700 text-gray-200 placeholder-gray-400 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full px-4 py-2 rounded-lg bg-amber-300 placeholder-black outline-none"
             placeholder="Enter your email"
           />
         </div>
@@ -55,7 +55,7 @@ export const Register = () => {
             onChange={(e) => setPassword(e.target.value)}
             type="password"
             id="password"
-            className="w-full px-4 py-2 rounded-lg bg-gray-700 text-gray-200 placeholder-gray-400 focus:ring-indigo-500 focus:border-indigo-500"
+            className="w-full px-4 py-2 rounded-lg bg-amber-300 placeholder-black outline-none"
             placeholder="Enter your password"
           />
         </div>
@@ -67,7 +67,7 @@ export const Register = () => {
       </form>
       <p className="text-sm text-center">
         Already have an account?{" "}
-        <Link to="/login" className="text-indigo-400 hover:underline">
+        <Link to="/login" className="text-indigo-700 hover:underline">
           Login
         </Link>
       </p>
