@@ -58,25 +58,94 @@ io.on("connection", (socket) => {
   // console.log("a user connected");
   socket.join(socket.roomId);
 
-  socket.on("project-message", async (data) => {
-    const message = data.message;
+  // socket.on("project-message", async (data) => {
+  //   // console.log(data);
+
+  //   // const message = data.message;
+
+  //   console.log("Received Data:", data);
+
+  //   if (!data || typeof data !== "object") {
+  //     console.error("Invalid data format:", data);
+  //     return;
+  //   }
+
+  //   const message = data?.message || ""; // Ensure message is always a string
+  //   console.log("Extracted Message:", message); // Debugging log
+
+  //   if (!message) {
+  //     console.error("Message is missing in data:", data);
+  //     return;
+  //   }
+  //   const aiIsPresentInMessage = message.includes("@ai");
+
+  //   // Broadcast message to all users except sender
+  //   socket.broadcast.to(socket.roomId).emit("project-message", data);
+
+  //   if (aiIsPresentInMessage) {
+  //     const prompt = message.replace("@ai", "");
+  //     const result = await generateResult(prompt);
+
+  //     io.to(socket.roomId).emit("project-message", {
+  //       message: result,
+  //       sender: {
+  //         _id: "ai",
+  //         email: "AI",
+  //       },
+  //     });
+
+  //     return;
+  //   }
+  // });
+
+  socket.on("project-message", async (rawData) => {
+    console.log("Received Raw Data:", rawData);
+
+    let data;
+    try {
+      data = typeof rawData === "string" ? JSON.parse(rawData) : rawData;
+    } catch (error) {
+      console.error("Error parsing JSON:", error);
+      return;
+    }
+
+    console.log("Parsed Data:", data);
+
+    if (!data || typeof data !== "object") {
+      console.error("Invalid data format:", data);
+      return;
+    }
+
+    const message = data?.message || ""; // Ensure message is always a string
+    console.log("Extracted Message:", message);
+
+    if (!message) {
+      console.error("Message is missing in data:", data);
+      return;
+    }
+
     const aiIsPresentInMessage = message.includes("@ai");
+
     // Broadcast message to all users except sender
     socket.broadcast.to(socket.roomId).emit("project-message", data);
 
     if (aiIsPresentInMessage) {
-      const prompt = message.replace("@ai", "");
-      const result = await generateResult(prompt);
+      const prompt = message.replace("@ai", "").trim();
+      console.log("AI Prompt:", prompt);
 
-      io.to(socket.roomId).emit("project-message", {
-        message: result,
-        sender: {
-          _id: "ai",
-          email: "AI",
-        },
-      });
+      try {
+        const result = await generateResult(prompt);
 
-      return;
+        io.to(socket.roomId).emit("project-message", {
+          message: result,
+          sender: {
+            _id: "ai",
+            email: "AI",
+          },
+        });
+      } catch (error) {
+        console.error("Error generating AI response:", error);
+      }
     }
   });
 

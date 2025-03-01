@@ -156,44 +156,28 @@ const Project = () => {
     }
 
     receiveMessage("project-message", (data) => {
-      console.log(JSON.parse(data.message));
-      // appendIncomingMessage(data);
-      const message = JSON.parse(data.message);
-      webContainer?.mount(message.fileTree);
+      console.log(data);
 
-      if (message.fileTree) {
-        setFileTree(message.fileTree);
+      if (data.sender._id == "ai") {
+        const message = JSON.parse(data.message);
+        webContainer?.mount(message.fileTree);
+
+        if (message.fileTree) {
+          setFileTree(message.fileTree || {});
+        }
+        setMessages((prevMessages) => [...prevMessages, data]);
+      } else {
+        setMessages((prevMessages) => [...prevMessages, data]);
       }
-      setMessages((prevMessages) => [...prevMessages, message]);
       scrollToBottom();
     });
-
-    // receiveMessage("project-message", (data) => {
-    //   try {
-    //     const message =
-    //       typeof data.message === "string"
-    //         ? JSON.parse(data.message)
-    //         : data.message;
-
-    //     console.log("Received message:", message);
-
-    //     if (message.fileTree) {
-    //       webContainer?.mount(message.fileTree);
-    //       setFileTree(message.fileTree);
-    //     }
-
-    //     setMessages((prevMessages) => [...prevMessages, message]);
-    //     scrollToBottom();
-    //   } catch (error) {
-    //     console.error("Error parsing received message:", error, data);
-    //   }
-    // });
 
     axios
       .get(`/projects/get-project/${location.state.project._id}`)
       .then((res) => {
         console.log(res.data.project);
         setProject(res.data.project);
+        setFileTree(res.data.project.fileTree);
       });
 
     axios
@@ -206,61 +190,19 @@ const Project = () => {
       });
   }, []);
 
-  // function appendIncomingMessage(messageObject) {
-  //   const messageBox = document.querySelector(".message-box");
-
-  //   const message = document.createElement("div");
-  //   message.classList.add(
-  //     "message",
-  //     "max-w-56",
-  //     // "self-start",
-  //     "flex",
-  //     "flex-col",
-  //     "p-2",
-  //     "bg-slate-50",
-  //     "w-fit",
-  //     "rounded-md"
-  //   );
-
-  //   if (messageObject.sender._id === "ai") {
-  //     const markDown = <Markdown>{messageObject.message}</Markdown>;
-
-  //     message.innerHTML = `<small class='opacity-65'>${messageObject.sender.email}</small>
-  //     <p >${markDown}</p>
-  //     `;
-  //   } else {
-  //     message.innerHTML = `<small class='opacity-65'>${messageObject.sender.email}</small>
-  //     <p >${messageObject.message}</p>
-  //     `;
-  //   }
-
-  //   messageBox.appendChild(message);
-  //   scrollToBottom();
-  // }
-
-  // function appendOutgoingMessage(message) {
-  //   const messageBox = document.querySelector(".message-box");
-
-  //   const newMessage = document.createElement("div");
-  //   newMessage.classList.add(
-  //     "message",
-  //     "max-w-56",
-  //     "ml-auto",
-  //     // "self-end",
-  //     "flex",
-  //     "flex-col",
-  //     "justify-end",
-  //     "p-2",
-  //     "bg-slate-50",
-  //     "w-fit",
-  //     "rounded-md"
-  //   );
-  //   newMessage.innerHTML = `<small class='opacity-65'>${user.email}</small>
-  //   <p >${message}</p>
-  //   `;
-  //   messageBox.appendChild(newMessage);
-  //   scrollToBottom();
-  // }
+  function saveFileTree(ft) {
+    axios
+      .put("/projects/update-file-tree", {
+        projectId: project._id,
+        fileTree: ft,
+      })
+      .then((res) => {
+        console.log(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
 
   function scrollToBottom() {
     messageBox.current.scrollTop = messageBox.current.scrollHeight;
@@ -434,16 +376,16 @@ const Project = () => {
                     suppressContentEditableWarning
                     onBlur={(e) => {
                       const updateContent = e.target.innerText;
-                      setFileTree((prevFileTree) => ({
-                        ...prevFileTree,
+                      const ft = {
+                        ...fileTree,
                         [currentFile]: {
-                          ...prevFileTree[currentFile],
                           file: {
-                            ...prevFileTree[currentFile].file,
                             contents: updateContent,
                           },
                         },
-                      }));
+                      };
+                      setFileTree(ft);
+                      saveFileTree(ft);
                     }}
                     dangerouslySetInnerHTML={{
                       __html: fileTree[currentFile]?.file.contents
