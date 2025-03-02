@@ -93,6 +93,62 @@ export const addUsersToProject = async ({ projectId, users, userId }) => {
   return updatedProject;
 };
 
+export const removeUserToProject = async ({ projectId, users, userId }) => {
+  if (!projectId) {
+    throw new Error("projectId is required");
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+    throw new Error("Invalid projectId");
+  }
+
+  if (!users) {
+    throw new Error("users are required");
+  }
+
+  if (
+    !Array.isArray(users) ||
+    users.some((userId) => !mongoose.Types.ObjectId.isValid(userId))
+  ) {
+    throw new Error("Invalid userId(s) in users array");
+  }
+
+  if (!userId) {
+    throw new Error("userId is required");
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    throw new Error("Invalid userId");
+  }
+
+  // Check if the logged-in user belongs to the project
+  const project = await projectModel.findOne({
+    _id: projectId,
+    users: userId,
+  });
+
+  if (!project) {
+    throw new Error("User does not belong to this project");
+  }
+
+  // Remove users from the project
+  const updatedProject = await projectModel.findOneAndUpdate(
+    {
+      _id: projectId,
+    },
+    {
+      $pull: {
+        users: { $in: users }, // Remove the specified users
+      },
+    },
+    {
+      new: true,
+    }
+  );
+
+  return updatedProject;
+};
+
 export const getProjectById = async ({ projectId }) => {
   if (!projectId) {
     throw new Error("projectId is required");

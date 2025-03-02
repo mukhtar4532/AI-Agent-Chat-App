@@ -11,8 +11,6 @@ import Markdown from "markdown-to-jsx";
 import hljs from "highlight.js";
 import { getWebContainer } from "../config/webContainer.js";
 
-// import "highlight.js/styles/github-dark.css"; // Choose a theme
-
 function SyntaxHighlightedCode(props) {
   const ref = useRef(null);
 
@@ -28,42 +26,8 @@ function SyntaxHighlightedCode(props) {
   return <code {...props} ref={ref} />;
 }
 
-// function SyntaxHighlightedCode({ children, className }) {
-//   const ref = useRef(null);
-
-//   useEffect(() => {
-//     if (ref.current && className?.includes("lang-")) {
-//       hljs.highlightElement(ref.current);
-//     }
-//   }, [children, className]); // Re-highlight when content changes
-
-//   return (
-//     <code ref={ref} className={className}>
-//       {children}
-//     </code>
-//   );
-// }
-
-// function SyntaxHighlightedCode({ className, children }) {
-//   const ref = useRef(null);
-
-//   useEffect(() => {
-//     if (ref.current && className?.includes("lang-") && window.hljs) {
-//       ref.current.removeAttribute("data-highlighted"); // Ensure hljs can re-highlight
-//       window.hljs.highlightElement(ref.current);
-//     }
-//   }, [className, children]);
-
-//   return (
-//     <code ref={ref} className={className}>
-//       {children}
-//     </code>
-//   );
-// }
-
 const Project = () => {
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState([]);
   const [users, setUsers] = useState([]);
@@ -81,6 +45,7 @@ const Project = () => {
   const [webContainer, setWebContainer] = useState(null);
   const [iframeUrl, setIframeUrl] = useState(null);
   const [runProcess, setRunProcess] = useState(null);
+  const [removeUser, setRemoveUser] = useState(null);
 
   const handleUserSelection = (userId) => {
     setSelectedUserId(
@@ -103,6 +68,26 @@ const Project = () => {
         console.log(res.data);
 
         setIsModalOpen(false);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+  function removeCollaborator(userId) {
+    axios
+      .put("/projects/remove-user", {
+        projectId: location.state.project._id,
+        users: [userId], // Send only the user to be removed
+      })
+      .then((res) => {
+        console.log("User removed successfully:", res.data);
+
+        // Update state locally to remove user
+        setProject((prevProject) => ({
+          ...prevProject,
+          users: prevProject.users.filter((user) => user._id !== userId),
+        }));
       })
       .catch((err) => {
         console.log(err);
@@ -208,6 +193,10 @@ const Project = () => {
     messageBox.current.scrollTop = messageBox.current.scrollHeight;
   }
 
+  function remove() {
+    setRemoveUser(true);
+  }
+
   return (
     <main className=" h-screen w-screen flex">
       <section className="left flex flex-col relative h-screen min-w-96 bg-amber-300">
@@ -285,12 +274,29 @@ const Project = () => {
             {project.users &&
               project.users.map((user) => {
                 return (
-                  <div className="user cursor-pointer hover:bg-amber-300 flex gap-2 items-center">
+                  <div
+                    className="user cursor-pointer hover:bg-amber-300 flex gap-2 items-center"
+                    key={user._id}>
                     <div className=" aspect-square rounded-full w-fit h-fit flex items-center justify-center p-2 bg-amber-600">
                       <i className="ri-user-fill"></i>
                     </div>
 
-                    <h1 className="font-semibold text-lg">{user.email}</h1>
+                    <button
+                      onClick={() =>
+                        setRemoveUser(removeUser === user._id ? null : user._id)
+                      }
+                      className="font-semibold text-lg">
+                      {user.email}
+                    </button>
+
+                    {/* Remove Button - Only visible when removeUser matches user._id */}
+                    {removeUser === user._id && (
+                      <button
+                        onClick={() => removeCollaborator(user._id)}
+                        className="bg-red-600 text-white px-2 py-1 rounded-md">
+                        Remove
+                      </button>
+                    )}
                   </div>
                 );
               })}

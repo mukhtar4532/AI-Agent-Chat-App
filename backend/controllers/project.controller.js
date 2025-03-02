@@ -68,6 +68,36 @@ export const addUsersToProject = async (req, res) => {
   }
 };
 
+export const removeUserToProject = async (req, res) => {
+  // Validate request body
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  try {
+    const { projectId, users } = req.body;
+
+    // Get logged-in user details
+    const loggedInUser = await userModel.findOne({ email: req.user.email });
+
+    // Call service function to remove collaborator
+    const project = await projectService.removeUserToProject({
+      projectId,
+      users,
+      userId: loggedInUser._id,
+    });
+
+    return res.status(200).json({
+      message: "Collaborator removed successfully",
+      project,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ error: error.message });
+  }
+};
+
 export const getProjectById = async (req, res) => {
   const { projectId } = req.params;
 
