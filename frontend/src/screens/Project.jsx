@@ -10,6 +10,7 @@ import {
 import Markdown from "markdown-to-jsx";
 import hljs from "highlight.js";
 import { getWebContainer } from "../config/webContainer.js";
+import PropTypes from "prop-types";
 
 function SyntaxHighlightedCode(props) {
   const ref = useRef(null);
@@ -25,6 +26,12 @@ function SyntaxHighlightedCode(props) {
 
   return <code {...props} ref={ref} />;
 }
+
+// Add prop validation
+SyntaxHighlightedCode.propTypes = {
+  className: PropTypes.string,
+  children: PropTypes.node,
+};
 
 const Project = () => {
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
@@ -116,7 +123,7 @@ const Project = () => {
     const messageObject = JSON.parse(message);
 
     return (
-      <div className="overflow-auto p-2 bg-slate-950 text-white rounded-sm">
+      <div className="overflow-auto p-2 bg-[#1e1e1e] text-white rounded-sm">
         <Markdown
           options={{
             overrides: {
@@ -124,7 +131,8 @@ const Project = () => {
                 component: SyntaxHighlightedCode,
               },
             },
-          }}>
+          }}
+        >
           {messageObject.text}
         </Markdown>
       </div>
@@ -194,22 +202,24 @@ const Project = () => {
   }
 
   return (
-    <main className=" h-screen w-screen flex">
-      <section className="left flex flex-col relative h-screen min-w-96 bg-slate-300">
+    <main className="h-screen w-screen flex font-sans bg-[#1e1e1e]">
+      <section className="left flex flex-col relative h-screen min-w-96 bg-[#2d2d2d]">
         {/* header section in which collaborator and sidePanel */}
 
-        <header className="flex justify-between items-center p-2 w-full bg-slate-400 absolute top-0 z-10">
+        <header className="flex justify-between items-center p-2 w-full bg-[#3d3d3d] absolute top-0 z-10 text-gray-200">
           <button
             onClick={() => setIsModalOpen(true)}
-            className="flex gap-2 text-lg font-semibold cursor-pointer">
-            <i className="ri-add-fill mr-1"></i>
+            className="flex gap-2 text-lg font-semibold cursor-pointer hover:text-gray-100 transition-colors"
+          >
+            <i className="ri-add-fill mr-1 text-[#e86c00]"></i>
             <p>Add collaborator</p>
           </button>
 
           <button
             onClick={() => setIsSidePanelOpen(!isSidePanelOpen)}
-            className="p-2 px-4 text-xl">
-            <i className="ri-group-fill"></i>
+            className="p-2 px-4 text-xl hover:text-gray-100 transition-colors"
+          >
+            <i className="ri-group-fill text-[#e86c00]"></i>
           </button>
         </header>
 
@@ -218,7 +228,8 @@ const Project = () => {
         <div className="conversation-area pt-14 pb-10 flex-grow flex flex-col h-full relative">
           <div
             ref={messageBox}
-            className="message-box p-2 flex-grow flex flex-col gap-2 overflow-auto max-h-full scrollbar-hide">
+            className="message-box p-2 flex-grow flex flex-col gap-2 overflow-auto max-h-full scrollbar-hide"
+          >
             {messages.map((msg, index) => (
               <div
                 key={index}
@@ -226,8 +237,11 @@ const Project = () => {
                   msg.sender._id === "ai" ? "max-w-80" : "max-w-60"
                 } ${
                   msg.sender._id == user._id.toString() && "ml-auto"
-                } message flex flex-col p-2 bg-slate-50 w-fit rounded-md`}>
-                <small className="opacity-65">{msg.sender.email}</small>
+                } message flex flex-col p-2 bg-[#3d3d3d] w-fit rounded-md text-gray-200 shadow-md`}
+              >
+                <small className="opacity-65 text-gray-400">
+                  {msg.sender.email}
+                </small>
                 <p>
                   {msg.sender._id === "ai"
                     ? WriteAiMessage(msg.message)
@@ -247,13 +261,16 @@ const Project = () => {
                   send(); // Calls send function
                 }
               }}
-              className="p-2 px-3 w-full border-none outline-none placeholder-black bg-slate-200 
+              className="p-2 px-3 w-full border-none outline-none bg-[#3d3d3d] text-gray-200 placeholder-gray-400
                overflow-x-auto whitespace-nowrap"
               type="text"
               placeholder="Enter message"
             />
-            <button onClick={send} className="p-2 px-3 bg-slate-400 text-2xl">
-              <i className="ri-send-plane-fill"></i>
+            <button
+              onClick={send}
+              className="p-2 px-3 bg-[#4d4d4d] text-2xl text-gray-200 hover:bg-[#5d5d5d] transition-colors"
+            >
+              <i className="ri-send-plane-fill text-[#e86c00]"></i>
             </button>
           </div>
         </div>
@@ -261,33 +278,37 @@ const Project = () => {
         {/* sidePanel section */}
 
         <div
-          className={`sidePanel flex flex-col gap-2 w-full h-full bg-slate-200 absolute transition-all ${
+          className={`sidePanel flex flex-col gap-2 w-full h-full bg-[#2d2d2d] absolute transition-all ${
             isSidePanelOpen ? " translate-x-0" : "-translate-x-full"
-          } top-0`}>
-          <header className="flex justify-between items-center p-2 px-3.5 bg-slate-400 text-black">
-            <h1 className=" font-semibold text-lg">Collaborators</h1>
+          } top-0 text-gray-200`}
+        >
+          <header className="flex justify-between items-center p-2 px-3.5 bg-[#3d3d3d]">
+            <h1 className="font-semibold text-lg">Collaborators</h1>
             <button
-              className="p-2 text-xl"
-              onClick={() => setIsSidePanelOpen(!isSidePanelOpen)}>
+              className="p-2 text-xl hover:text-gray-100 transition-colors"
+              onClick={() => setIsSidePanelOpen(!isSidePanelOpen)}
+            >
               <i className="ri-close-fill"></i>
             </button>
           </header>
-          <div className="users flex flex-col gap-2">
+          <div className="users flex flex-col gap-2 p-2">
             {project.users &&
               project.users.map((user) => {
                 return (
                   <div
-                    className="user cursor-pointer hover:bg-slate-300 flex gap-2 items-center"
-                    key={user._id}>
-                    <div className=" aspect-square rounded-full w-fit h-fit flex items-center justify-center p-2 bg-slate-500">
-                      <i className="ri-user-fill"></i>
+                    className="user cursor-pointer hover:bg-[#3d3d3d] flex gap-2 items-center p-2 rounded-md transition-colors"
+                    key={user._id}
+                  >
+                    <div className="aspect-square rounded-full w-fit h-fit flex items-center justify-center p-2 bg-[#4d4d4d]">
+                      <i className="ri-user-fill text-[#e86c00]"></i>
                     </div>
 
                     <button
                       onClick={() =>
                         setRemoveUser(removeUser === user._id ? null : user._id)
                       }
-                      className="font-semibold text-lg">
+                      className="font-semibold text-lg"
+                    >
                       {user.email}
                     </button>
 
@@ -295,7 +316,8 @@ const Project = () => {
                     {removeUser === user._id && (
                       <button
                         onClick={() => removeCollaborator(user._id)}
-                        className="bg-red-600 mr-4 ml-auto px-2 py-1 text-white font-semibold rounded-md">
+                        className="bg-red-600 hover:bg-red-700 mr-4 ml-auto px-2 py-1 text-white font-semibold rounded-md transition-colors"
+                      >
                         Remove
                       </button>
                     )}
@@ -306,10 +328,10 @@ const Project = () => {
         </div>
       </section>
 
-      <section className="right bg-red-100 flex-grow h-full flex ">
-        <div className="explorer h-full max-w-64 min-w-60 bg-slate-400 bg-opacity-65 border-l-2 border-solid border-black">
+      <section className="right flex-grow h-full flex bg-[#1e1e1e]">
+        <div className="explorer h-full max-w-64 min-w-60 bg-[#2d2d2d] border-l border-[#3d3d3d]">
           <div className="file-tree w-full flex flex-col">
-            <p className="font-semibold text-lg bg-slate-800 text-white p-2 px-4 border-b-2 border-solid border-black text-center">
+            <p className="font-semibold text-lg bg-[#1e1e1e] text-gray-200 p-2 px-4 border-b border-[#3d3d3d] text-center">
               Code Editor
             </p>
 
@@ -320,21 +342,25 @@ const Project = () => {
                   setCurrentFile(file);
                   setOpenFiles([...new Set([...openFiles, file])]);
                 }}
-                className="tree-element cursor-pointer p-2 px-4 bg-slate-500 w-full border-b-2 border-solid border-black">
+                className="tree-element cursor-pointer p-2 px-4 bg-[#3d3d3d] w-full border-b border-[#4d4d4d] text-gray-200 hover:bg-[#4d4d4d] transition-colors text-left"
+              >
                 <p className="font-semibold text-lg text-start">{file}</p>
               </button>
             ))}
           </div>
         </div>
 
-        <div className="code-editor flex flex-col flex-grow h-full">
-          <div className="top flex  justify-between w-full">
+        <div className="code-editor flex flex-col flex-grow h-full bg-[#1e1e1e]">
+          <div className="top flex justify-between w-full bg-[#2d2d2d]">
             <div className="files flex">
               {openFiles.map((file, index) => (
                 <button
                   key={index}
                   onClick={() => setCurrentFile(file)}
-                  className={`open-file cursor-pointer p-2 px-4 w-fit flex items-center gap-2 bg-slate-300 border-r-2 border-solid border-black`}>
+                  className={`open-file cursor-pointer p-2 px-4 w-fit flex items-center gap-2 bg-[#3d3d3d] border-r border-[#4d4d4d] text-gray-200 ${
+                    currentFile === file ? "bg-[#4d4d4d]" : ""
+                  }`}
+                >
                   <p className="font-semibold text-lg">{file}</p>
                   <button
                     onClick={(e) => {
@@ -352,7 +378,9 @@ const Project = () => {
                           updatedFiles.length > 0 ? updatedFiles[0] : null
                         );
                       }
-                    }}>
+                    }}
+                    className="text-gray-400 hover:text-gray-200 transition-colors"
+                  >
                     ✕
                   </button>
                 </button>
@@ -392,18 +420,18 @@ const Project = () => {
                     setIframeUrl(url);
                   });
                 }}
-                className="p-2 px-4 bg-green-500 mr-4 mt-1 mb-1 rounded-md">
+                className="p-2 px-4 bg-[#e86c00] hover:bg-[#ff7b00] mr-4 mt-1 mb-1 rounded-md text-white font-semibold transition-colors"
+              >
                 Run
               </button>
             </div>
           </div>
-          {/* {currentFile === null ? <h1>No file selected</h1> : ""} */}
 
           <div className="bottom flex flex-grow max-w-full shrink overflow-auto">
             {currentFile === null || !fileTree[currentFile] ? (
               ""
             ) : (
-              <div className="code-editor-area h-full overflow-auto flex-grow bg-slate-200">
+              <div className="code-editor-area h-full overflow-auto flex-grow bg-[#2d2d2d] text-gray-200">
                 <pre className="hljs h-full">
                   <code
                     className="hljs h-full outline-none"
@@ -442,19 +470,20 @@ const Project = () => {
         </div>
 
         {iframeUrl && webContainer && (
-          <div className="flex flex-col min-w-96 h-full text-black">
+          <div className="flex flex-col min-w-96 h-full border-l border-[#3d3d3d]">
             <div className="address-bar">
               <input
                 type="text"
                 onChange={(e) => setIframeUrl(e.target.value)}
                 value={iframeUrl}
-                className="w-full p-2 px-4 bg-slate-300"
+                className="w-full p-2 px-4 bg-[#3d3d3d] text-gray-200 border-b border-[#4d4d4d] outline-none"
               />
             </div>
             <iframe
               src={iframeUrl}
               sandbox="allow-scripts allow-same-origin allow-forms"
-              className="w-full h-full"></iframe>
+              className="w-full h-full bg-white"
+            ></iframe>
           </div>
         )}
       </section>
@@ -462,8 +491,8 @@ const Project = () => {
       {/* Modal Section start here */}
 
       {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-slate-700 bg-opacity-65 p-6 rounded-lg shadow-lg w-80">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
+          <div className="bg-[#2d2d2d] p-6 rounded-lg shadow-lg w-80 border border-[#3d3d3d] text-gray-200">
             <h2 className="text-lg font-semibold mb-4">Select a User</h2>
             <div className="max-h-40 overflow-y-auto space-y-2">
               {users.map((user) => (
@@ -471,26 +500,29 @@ const Project = () => {
                   key={user._id}
                   className={`p-2 cursor-pointer rounded-md flex items-center justify-between ${
                     selectedUserId.includes(user._id)
-                      ? "bg-slate-400"
-                      : "bg-slate-300"
-                  }`}
-                  onClick={() => handleUserSelection(user._id)}>
+                      ? "bg-[#4d4d4d]"
+                      : "bg-[#3d3d3d]"
+                  } hover:bg-[#4d4d4d] transition-colors`}
+                  onClick={() => handleUserSelection(user._id)}
+                >
                   {user.email}
                   {selectedUserId.includes(user._id) && (
-                    <i className="ri-check-line"></i>
+                    <i className="ri-check-line text-[#e86c00]"></i>
                   )}
                 </div>
               ))}
             </div>
             <div className="flex justify-end gap-2 mt-4">
               <button
-                className="px-4 py-2 bg-black rounded-md text-white font-semibold"
-                onClick={() => setIsModalOpen(false)}>
+                className="px-4 py-2 bg-[#3d3d3d] hover:bg-[#4d4d4d] rounded-md text-gray-200 font-semibold transition-colors"
+                onClick={() => setIsModalOpen(false)}
+              >
                 Cancel
               </button>
               <button
-                className="px-4 py-2 bg-black rounded-md text-white font-semibold"
-                onClick={addCollaborators}>
+                className="px-4 py-2 bg-[#e86c00] hover:bg-[#ff7b00] rounded-md text-white font-semibold transition-colors"
+                onClick={addCollaborators}
+              >
                 Confirm
               </button>
             </div>

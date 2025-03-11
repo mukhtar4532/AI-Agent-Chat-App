@@ -1,3 +1,6 @@
+/* Import Inter font which works well with dark themes */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -10,8 +13,12 @@
 
 html,
 body {
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   height: 100%;
   width: 100%;
+  background-color: #1e1e1e;
+  color: #e4e4e4;
 }
 
 .message-box {
@@ -20,4 +27,30 @@ body {
 
 .message-box::-webkit-scrollbar {
   display: none;
+}
+
+/* Add custom font styles for headings */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 600;
+}
+
+/* Add styles for code elements */
+code {
+  font-family: "Menlo", "Monaco", "Courier New", monospace;
+}
+
+/* Add styles for links */
+a {
+  color: #e86c00;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  text-decoration: underline;
 }
